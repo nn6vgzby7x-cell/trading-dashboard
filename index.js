@@ -15,3 +15,17 @@ root.render(
 // to log results (for example: reportWebVitals(console.log))
 // or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
 reportWebVitals();
+import React from "react";
+import ReactDOM from "react-dom";
+import App from "./App";
+
+ReactDOM.render(<App />, document.getElementById("root"));function App() {
+  return (
+    <div style={{ padding: 40 }}>
+      <h1>Trading Dashboard</h1>
+      <p>App loaded successfully.</p>
+    </div>
+  );
+}
+
+export default App;
