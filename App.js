@@ -9,6 +9,15 @@ ReactDOM.render(<App />, document.getElementById("root"));function App() {
       <p>App loaded successfully.</p>
     </div>
   );
+}function App() {
+  return (
+    <div style={{ padding: 40 }}>
+      <h1>Trading Dashboard</h1>
+      <p>Live render test OK.</p>
+    </div>
+  );
 }
+
+export default App;
 
 export default App;
