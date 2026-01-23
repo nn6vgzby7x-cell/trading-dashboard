@@ -7,4 +7,4 @@ root.render(
   <React.StrictMode>
     <App />
   </React.StrictMode>
-);Clean index.js duplicate imports
+);Fix index.js boot
