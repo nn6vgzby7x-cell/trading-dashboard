@@ -1,16 +1,10 @@
-import React from "react";
-
 function App() {
-  return <div>Hello</div>;
-}
-
-export default App;function App() {
   return (
     <div style={{ padding: 40 }}>
       <h1>Trading Dashboard</h1>
-      <p>Live render fixed.</p>
+      <p>React is working.</p>
     </div>
   );
 }
 
-export default App;
+export default App;Fix App render
