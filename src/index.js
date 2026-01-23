@@ -7,4 +7,4 @@ root.render(
   <React.StrictMode>
     <App />
   </React.StrictMode>
-)Fix index.js render
+);Clean index.js duplicate imports
