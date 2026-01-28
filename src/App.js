@@ -11,59 +11,74 @@ export default function App() {
   const totalPnL = trades.reduce((sum, t) => sum + t.pnl, 0);
 
   return (
-    <div style={{ padding: 30, fontFamily: "Arial", background: "#f4f6fa", minHeight: "100vh" }}>
+    <div style={{ padding: 40, maxWidth: 1100, margin: "0 auto" }}>
       
       {/* Header */}
-      <h1>Trading Dashboard</h1>
-      <p>Status: <strong>Live</strong></p>
+      <header style={{ marginBottom: 30 }}>
+        <h1 style={{ fontSize: 32 }}>Trading Dashboard</h1>
+        <p style={{ color: "#94a3b8" }}>Status: Live</p>
+      </header>
 
-      {/* Summary Cards */}
-      <div style={{ display: "flex", gap: 20, marginTop: 20 }}>
+      {/* Cards */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20 }}>
         <Card title="Total Trades" value={totalTrades} />
         <Card title="Win Rate" value={`${winRate}%`} />
-        <Card title="Total P&L" value={`$${totalPnL}`} />
+        <Card
+          title="Total P&L"
+          value={`$${totalPnL}`}
+          highlight={totalPnL >= 0}
+        />
       </div>
 
-      {/* Trades Table */}
-      <h2 style={{ marginTop: 40 }}>Recent Trades</h2>
-      <table width="100%" cellPadding="10" style={{ background: "white", borderRadius: 8 }}>
-        <thead>
-          <tr style={{ textAlign: "left", background: "#eee" }}>
-            <th>Symbol</th>
-            <th>Type</th>
-            <th>Result</th>
-            <th>P&L</th>
-          </tr>
-        </thead>
-        <tbody>
-          {trades.map(trade => (
-            <tr key={trade.id}>
-              <td>{trade.symbol}</td>
-              <td>{trade.type}</td>
-              <td>{trade.result}</td>
-              <td style={{ color: trade.pnl >= 0 ? "green" : "red" }}>
-                {trade.pnl >= 0 ? "+" : ""}{trade.pnl}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      {/* Table */}
+      <section style={{ marginTop: 40 }}>
+        <h2 style={{ marginBottom: 12 }}>Recent Trades</h2>
 
+        <div style={{ background: "#020617", borderRadius: 10, overflow: "hidden" }}>
+          <table width="100%">
+            <thead style={{ background: "#020617" }}>
+              <tr>
+                <th>Symbol</th>
+                <th>Type</th>
+                <th>Result</th>
+                <th>P&L</th>
+              </tr>
+            </thead>
+            <tbody>
+              {trades.map(trade => (
+                <tr key={trade.id} style={{ borderTop: "1px solid #1e293b" }}>
+                  <td>{trade.symbol}</td>
+                  <td>{trade.type}</td>
+                  <td>{trade.result}</td>
+                  <td style={{ color: trade.pnl >= 0 ? "#22c55e" : "#ef4444" }}>
+                    {trade.pnl >= 0 ? "+" : ""}{trade.pnl}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
     </div>
   );
 }
 
-function Card({ title, value }) {
+function Card({ title, value, highlight }) {
   return (
     <div style={{
-      background: "white",
+      background: "#020617",
       padding: 20,
-      borderRadius: 8,
-      minWidth: 150,
-      boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
+      borderRadius: 12,
+      boxShadow: "0 0 0 1px #1e293b"
     }}>
-      <h3 style={{ margin: 0 }}>{title}</h3>
-      <p style={{ fontSize: 24, marginTop: 10 }}>{value}</p>
+      <p style={{ color: "#94a3b8", fontSize: 13 }}>{title}</p>
+      <p style={{
+        fontSize: 28,
+        marginTop: 8,
+        color: highlight ? "#22c55e" : "white"
+      }}>
+        {value}
+      </p>
     </div>
   );
 }
