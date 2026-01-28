@@ -1,74 +1,79 @@
-export default function App() {
-  const stats = [
-    { label: "Total Trades", value: 3 },
-    { label: "Win Rate", value: "67%" },
-    { label: "Total P&L", value: "$360" },
-  ];
+import { useState } from "react";
 
-  const trades = [
+export default function App() {
+  const [trades, setTrades] = useState([
     { symbol: "AAPL", pnl: 120 },
     { symbol: "TSLA", pnl: -80 },
     { symbol: "BTC", pnl: 320 },
-  ];
+  ]);
+
+  const [symbol, setSymbol] = useState("");
+  const [pnl, setPnl] = useState("");
+
+  const totalTrades = trades.length;
+  const wins = trades.filter(t => t.pnl > 0).length;
+  const winRate = totalTrades ? Math.round((wins / totalTrades) * 100) + "%" : "0%";
+  const totalPnL = trades.reduce((sum, t) => sum + t.pnl, 0);
+
+  const addTrade = (e) => {
+    e.preventDefault();
+    if (!symbol || pnl === "") return;
+
+    setTrades([...trades, { symbol: symbol.toUpperCase(), pnl: Number(pnl) }]);
+    setSymbol("");
+    setPnl("");
+  };
 
   return (
     <div style={{ padding: 40, fontFamily: "Arial" }}>
       <h1>Trading Dashboard</h1>
 
-      {/* Cards */}
-      <div style={{ display: "flex", gap: 20, marginTop: 30 }}>
-        {stats.map((stat, index) => (
-          <div
-            key={index}
-            style={{
-              border: "1px solid #ccc",
-              borderRadius: 8,
-              padding: 20,
-              minWidth: 150,
-              textAlign: "center",
-              background: "#f9f9f9",
-            }}
-          >
-            <h3>{stat.label}</h3>
-            <p style={{ fontSize: 24, fontWeight: "bold" }}>
-              {stat.value}
-            </p>
+      {/* Stats */}
+      <div style={{ display: "flex", gap: 20, marginTop: 20 }}>
+        {[
+          { label: "Total Trades", value: totalTrades },
+          { label: "Win Rate", value: winRate },
+          { label: "Total P&L", value: `$${totalPnL}` },
+        ].map((s, i) => (
+          <div key={i} style={{ border: "1px solid #ccc", padding: 20, borderRadius: 8 }}>
+            <h3>{s.label}</h3>
+            <strong>{s.value}</strong>
           </div>
         ))}
       </div>
 
-      {/* Trades Table */}
-      <h2 style={{ marginTop: 40 }}>Trades</h2>
+      {/* Add Trade Form */}
+      <h2 style={{ marginTop: 30 }}>Add Trade</h2>
+      <form onSubmit={addTrade} style={{ display: "flex", gap: 10 }}>
+        <input
+          placeholder="Symbol (e.g. AAPL)"
+          value={symbol}
+          onChange={(e) => setSymbol(e.target.value)}
+        />
+        <input
+          placeholder="P&L (e.g. 120 or -80)"
+          type="number"
+          value={pnl}
+          onChange={(e) => setPnl(e.target.value)}
+        />
+        <button type="submit">Add</button>
+      </form>
 
-      <table
-        style={{
-          width: "100%",
-          borderCollapse: "collapse",
-          marginTop: 10,
-        }}
-      >
+      {/* Trades Table */}
+      <h2 style={{ marginTop: 30 }}>Trades</h2>
+      <table width="100%">
         <thead>
           <tr>
-            <th style={{ borderBottom: "2px solid #ccc", textAlign: "left" }}>
-              Symbol
-            </th>
-            <th style={{ borderBottom: "2px solid #ccc", textAlign: "left" }}>
-              P&L
-            </th>
+            <th align="left">Symbol</th>
+            <th align="left">P&L</th>
           </tr>
         </thead>
         <tbody>
-          {trades.map((trade, index) => (
-            <tr key={index}>
-              <td style={{ padding: "8px 0" }}>{trade.symbol}</td>
-              <td
-                style={{
-                  padding: "8px 0",
-                  color: trade.pnl >= 0 ? "green" : "red",
-                  fontWeight: "bold",
-                }}
-              >
-                {trade.pnl >= 0 ? "+" : "-"}${Math.abs(trade.pnl)}
+          {trades.map((t, i) => (
+            <tr key={i}>
+              <td>{t.symbol}</td>
+              <td style={{ color: t.pnl >= 0 ? "green" : "red" }}>
+                {t.pnl >= 0 ? "+" : "-"}${Math.abs(t.pnl)}
               </td>
             </tr>
           ))}
