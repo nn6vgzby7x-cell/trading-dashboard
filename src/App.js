@@ -1,6 +1,6 @@
 export default function App() {
   return (
-    <div style={{ padding: 40 }}>
+    <div style={{ padding: 40, fontFamily: "Arial, sans-serif" }}>
       <h1>Trading Dashboard</h1>
       <p>React is rendering correctly.</p>
 
@@ -9,3 +9,17 @@ export default function App() {
         target="_blank"
         rel="noopener noreferrer"
       >
+        <button
+          style={{
+            marginTop: "20px",
+            padding: "12px 20px",
+            fontSize: "16px",
+            cursor: "pointer",
+          }}
+        >
+          Upgrade to Pro
+        </button>
+      </a>
+    </div>
+  );
+}
