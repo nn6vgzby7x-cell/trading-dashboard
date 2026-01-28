@@ -5,3 +5,7 @@ export default function App() {
       <p>React is rendering correctly.</p>
 
       <a
+        href="https://buy.stripe.com/YOUR_REAL_STRIPE_LINK"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
