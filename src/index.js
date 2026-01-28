@@ -1,9 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
+import App from "./App";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
-root.render(
-  <div style={{ color: "white", padding: 40, fontSize: 30 }}>
-    🚀 INDEX.JS IS RENDERING
-  </div>
-);
+root.render(<App />);
