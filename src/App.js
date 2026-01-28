@@ -1,17 +1,30 @@
 import { useEffect, useRef, useState } from "react";
 import { createChart } from "lightweight-charts";
 
+const STORAGE_KEY = "trading-dashboard-trades";
+
 export default function App() {
   const chartRef = useRef(null);
 
-  const [trades, setTrades] = useState([
-    { id: 1, symbol: "AAPL", pnl: 120 },
-    { id: 2, symbol: "TSLA", pnl: -60 },
-    { id: 3, symbol: "BTC", pnl: 300 },
-  ]);
+  // Load from localStorage on first render
+  const [trades, setTrades] = useState(() => {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    return saved
+      ? JSON.parse(saved)
+      : [
+          { id: 1, symbol: "AAPL", pnl: 120 },
+          { id: 2, symbol: "TSLA", pnl: -60 },
+          { id: 3, symbol: "BTC", pnl: 300 },
+        ];
+  });
 
   const [symbol, setSymbol] = useState("");
   const [pnl, setPnl] = useState("");
+
+  // Save to localStorage whenever trades change
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(trades));
+  }, [trades]);
 
   const totalTrades = trades.length;
   const wins = trades.filter(t => t.pnl > 0).length;
@@ -70,6 +83,12 @@ export default function App() {
     setPnl("");
   }
 
+  function clearTrades() {
+    if (!window.confirm("Clear all trades?")) return;
+    setTrades([]);
+    localStorage.removeItem(STORAGE_KEY);
+  }
+
   return (
     <div style={{ padding: 40, maxWidth: 1100, margin: "0 auto" }}>
       <h1>Trading Dashboard</h1>
@@ -82,7 +101,7 @@ export default function App() {
         <Card title="Total P&L" value={`$${totalPnL}`} highlight={totalPnL >= 0} />
       </div>
 
-      {/* Add Trade Form */}
+      {/* Add Trade */}
       <h2 style={{ marginTop: 40 }}>Add Trade</h2>
       <form onSubmit={addTrade} style={{ display: "flex", gap: 10, marginTop: 10 }}>
         <input
@@ -97,13 +116,14 @@ export default function App() {
           onChange={e => setPnl(e.target.value)}
         />
         <button type="submit">Add</button>
+        <button type="button" onClick={clearTrades}>Clear</button>
       </form>
 
       {/* Chart */}
       <h2 style={{ marginTop: 40 }}>Equity Curve</h2>
       <div ref={chartRef} style={{ marginTop: 10 }} />
 
-      {/* Trades Table */}
+      {/* Table */}
       <h2 style={{ marginTop: 40 }}>Recent Trades</h2>
       <div style={{ background: "#020617", borderRadius: 10 }}>
         <table width="100%" cellPadding="10">
