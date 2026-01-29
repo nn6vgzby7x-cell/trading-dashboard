@@ -1,4 +1,36 @@
+import { useEffect, useRef } from "react";
+import { createChart } from "lightweight-charts";
+
 export default function App() {
+  const chartContainerRef = useRef(null);
+
+  useEffect(() => {
+    const chart = createChart(chartContainerRef.current, {
+      width: 600,
+      height: 300,
+      layout: {
+        background: { color: "#ffffff" },
+        textColor: "#000",
+      },
+      grid: {
+        vertLines: { color: "#eee" },
+        horzLines: { color: "#eee" },
+      },
+    });
+
+    const series = chart.addLineSeries({ color: "#0070f3" });
+
+    series.setData([
+      { time: "2024-01-01", value: 150 },
+      { time: "2024-01-02", value: 153 },
+      { time: "2024-01-03", value: 149 },
+      { time: "2024-01-04", value: 158 },
+      { time: "2024-01-05", value: 162 },
+    ]);
+
+    return () => chart.remove();
+  }, []);
+
   return (
     <div style={{ padding: 40, fontFamily: "Arial, sans-serif" }}>
       <h1>Trading Dashboard</h1>
@@ -10,16 +42,13 @@ export default function App() {
         <p><strong>Total P&L:</strong> $360</p>
       </div>
 
-      {/* Recent Trades Table */}
-      <h2 style={{ marginTop: 40 }}>Recent Trades</h2>
+      {/* Chart */}
+      <h2 style={{ marginTop: 40 }}>Price Chart</h2>
+      <div ref={chartContainerRef} />
 
-      <table
-        style={{
-          width: "100%",
-          borderCollapse: "collapse",
-          marginTop: 10,
-        }}
-      >
+      {/* Recent Trades */}
+      <h2 style={{ marginTop: 40 }}>Recent Trades</h2>
+      <table style={{ width: "100%", borderCollapse: "collapse" }}>
         <thead>
           <tr>
             <th style={th}>Asset</th>
