@@ -1,27 +1,41 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { createChart } from "lightweight-charts";
 
 export default function App() {
+  const chartRef = useRef(null);
+
   const [trades, setTrades] = useState([
     { asset: "AAPL", type: "Long", pnl: 120 },
     { asset: "TSLA", type: "Short", pnl: -40 },
     { asset: "BTC", type: "Long", pnl: 280 },
   ]);
 
-  const [asset, setAsset] = useState("");
-  const [type, setType] = useState("Long");
-  const [pnl, setPnl] = useState("");
+  useEffect(() => {
+    const chart = createChart(chartRef.current, {
+      width: chartRef.current.clientWidth,
+      height: 300,
+      layout: {
+        background: { color: "#ffffff" },
+        textColor: "#333",
+      },
+      grid: {
+        vertLines: { color: "#eee" },
+        horzLines: { color: "#eee" },
+      },
+    });
 
-  const addTrade = () => {
-    if (!asset || !pnl) return;
+    const candleSeries = chart.addCandlestickSeries();
 
-    setTrades([
-      ...trades,
-      { asset, type, pnl: Number(pnl) },
+    candleSeries.setData([
+      { time: "2024-01-01", open: 100, high: 110, low: 95, close: 105 },
+      { time: "2024-01-02", open: 105, high: 115, low: 100, close: 112 },
+      { time: "2024-01-03", open: 112, high: 118, low: 108, close: 110 },
+      { time: "2024-01-04", open: 110, high: 120, low: 109, close: 118 },
+      { time: "2024-01-05", open: 118, high: 125, low: 115, close: 122 },
     ]);
 
-    setAsset("");
-    setPnl("");
-  };
+    return () => chart.remove();
+  }, []);
 
   const wins = trades.filter(t => t.pnl > 0).length;
   const winRate = Math.round((wins / trades.length) * 100);
@@ -35,33 +49,15 @@ export default function App() {
       <div style={{ display: "flex", gap: 20, marginBottom: 30 }}>
         <Stat label="Total Trades" value={trades.length} />
         <Stat label="Win Rate" value={`${winRate}%`} />
-        <Stat
-          label="Total P&L"
-          value={`$${totalPnL}`}
-          positive={totalPnL > 0}
-        />
+        <Stat label="Total P&L" value={`$${totalPnL}`} positive />
       </div>
 
-      {/* Add Trade */}
-      <h2>Add Trade</h2>
-      <div style={{ display: "flex", gap: 10, marginBottom: 20 }}>
-        <input
-          placeholder="Asset (e.g. AAPL)"
-          value={asset}
-          onChange={e => setAsset(e.target.value)}
-        />
-        <select value={type} onChange={e => setType(e.target.value)}>
-          <option>Long</option>
-          <option>Short</option>
-        </select>
-        <input
-          placeholder="P&L"
-          type="number"
-          value={pnl}
-          onChange={e => setPnl(e.target.value)}
-        />
-        <button onClick={addTrade}>Add</button>
-      </div>
+      {/* Chart */}
+      <h2>Market Chart</h2>
+      <div
+        ref={chartRef}
+        style={{ width: "100%", border: "1px solid #ddd", marginBottom: 40 }}
+      />
 
       {/* Trades Table */}
       <table width="100%" border="1" cellPadding="8">
