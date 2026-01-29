@@ -2,15 +2,24 @@ import { useEffect, useRef, useState } from "react";
 import { createChart } from "lightweight-charts";
 
 export default function App() {
+  // 🔐 Toggle this later with real Stripe auth
+  const [isProUser, setIsProUser] = useState(false);
+
   const chartRef = useRef(null);
 
-  const [trades, setTrades] = useState([
+  const trades = [
     { asset: "AAPL", type: "Long", pnl: 120 },
     { asset: "TSLA", type: "Short", pnl: -40 },
     { asset: "BTC", type: "Long", pnl: 280 },
-  ]);
+  ];
+
+  const wins = trades.filter(t => t.pnl > 0).length;
+  const winRate = Math.round((wins / trades.length) * 100);
+  const totalPnL = trades.reduce((sum, t) => sum + t.pnl, 0);
 
   useEffect(() => {
+    if (!isProUser) return;
+
     const chart = createChart(chartRef.current, {
       width: chartRef.current.clientWidth,
       height: 300,
@@ -35,11 +44,7 @@ export default function App() {
     ]);
 
     return () => chart.remove();
-  }, []);
-
-  const wins = trades.filter(t => t.pnl > 0).length;
-  const winRate = Math.round((wins / trades.length) * 100);
-  const totalPnL = trades.reduce((sum, t) => sum + t.pnl, 0);
+  }, [isProUser]);
 
   return (
     <div style={{ padding: 40, fontFamily: "Arial" }}>
@@ -52,34 +57,67 @@ export default function App() {
         <Stat label="Total P&L" value={`$${totalPnL}`} positive />
       </div>
 
-      {/* Chart */}
-      <h2>Market Chart</h2>
-      <div
-        ref={chartRef}
-        style={{ width: "100%", border: "1px solid #ddd", marginBottom: 40 }}
-      />
+      {/* PRO CONTENT */}
+      {!isProUser ? (
+        <div
+          style={{
+            padding: 30,
+            background: "#f8f9fb",
+            border: "1px solid #ddd",
+            borderRadius: 8,
+          }}
+        >
+          <h2>🔒 Pro Feature</h2>
+          <p>Upgrade to Pro to unlock live charts and detailed trade data.</p>
 
-      {/* Trades Table */}
-      <table width="100%" border="1" cellPadding="8">
-        <thead>
-          <tr>
-            <th>Asset</th>
-            <th>Type</th>
-            <th>P&L</th>
-          </tr>
-        </thead>
-        <tbody>
-          {trades.map((t, i) => (
-            <tr key={i}>
-              <td>{t.asset}</td>
-              <td>{t.type}</td>
-              <td style={{ color: t.pnl >= 0 ? "green" : "red" }}>
-                {t.pnl}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+          <a
+            href="https://buy.stripe.com/4gM9AM0iy5Q91PldkE2Ji01"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <button style={buttonStyle}>Upgrade to Pro</button>
+          </a>
+
+          {/* TEMP BUTTON FOR TESTING */}
+          <div style={{ marginTop: 10 }}>
+            <button
+              onClick={() => setIsProUser(true)}
+              style={{ fontSize: 12 }}
+            >
+              (Dev) Unlock Pro
+            </button>
+          </div>
+        </div>
+      ) : (
+        <>
+          <h2>Market Chart</h2>
+          <div
+            ref={chartRef}
+            style={{ width: "100%", border: "1px solid #ddd", marginBottom: 40 }}
+          />
+
+          <table width="100%" border="1" cellPadding="8">
+            <thead>
+              <tr>
+                <th>Asset</th>
+                <th>Type</th>
+                <th>P&L</th>
+              </tr>
+            </thead>
+            <tbody>
+              {trades.map((t, i) => (
+                <tr key={i}>
+                  <td>{t.asset}</td>
+                  <td>{t.type}</td>
+                  <td style={{ color: t.pnl >= 0 ? "green" : "red" }}>
+                    {t.pnl}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </>
+      )}
     </div>
   );
 }
@@ -94,3 +132,13 @@ function Stat({ label, value, positive }) {
     </div>
   );
 }
+
+const buttonStyle = {
+  padding: "14px 24px",
+  fontSize: 16,
+  background: "#0070f3",
+  color: "#fff",
+  border: "none",
+  borderRadius: 6,
+  cursor: "pointer",
+};
