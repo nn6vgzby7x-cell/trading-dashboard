@@ -27,3 +27,37 @@ function Stat({ title, value }) {
     </div>
   );
 }
+<h2 style={{ marginTop: 40 }}>Recent Trades</h2>
+
+<table
+  style={{
+    width: "100%",
+    borderCollapse: "collapse",
+    background: "#fff",
+  }}
+>
+  <thead>
+    <tr style={{ background: "#eee", textAlign: "left" }}>
+      <th style={{ padding: 12 }}>Asset</th>
+      <th style={{ padding: 12 }}>Type</th>
+      <th style={{ padding: 12 }}>P&L</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style={{ padding: 12 }}>AAPL</td>
+      <td style={{ padding: 12 }}>Long</td>
+      <td style={{ padding: 12, color: "green" }}>+120</td>
+    </tr>
+    <tr>
+      <td style={{ padding: 12 }}>TSLA</td>
+      <td style={{ padding: 12 }}>Short</td>
+      <td style={{ padding: 12, color: "red" }}>-40</td>
+    </tr>
+    <tr>
+      <td style={{ padding: 12 }}>BTC</td>
+      <td style={{ padding: 12 }}>Long</td>
+      <td style={{ padding: 12, color: "green" }}>+280</td>
+    </tr>
+  </tbody>
+</table>
