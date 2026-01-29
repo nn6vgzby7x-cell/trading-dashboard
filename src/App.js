@@ -2,10 +2,12 @@ import { useEffect, useRef } from "react";
 import { createChart } from "lightweight-charts";
 
 export default function App() {
-  const chartContainerRef = useRef(null);
+  const chartRef = useRef(null);
 
   useEffect(() => {
-    const chart = createChart(chartContainerRef.current, {
+    if (!chartRef.current) return;
+
+    const chart = createChart(chartRef.current, {
       width: 600,
       height: 300,
       layout: {
@@ -18,7 +20,10 @@ export default function App() {
       },
     });
 
-    const series = chart.addLineSeries({ color: "#0070f3" });
+    const series = chart.addLineSeries({
+      color: "#0070f3",
+      lineWidth: 2,
+    });
 
     series.setData([
       { time: "2024-01-01", value: 150 },
@@ -44,47 +49,18 @@ export default function App() {
 
       {/* Chart */}
       <h2 style={{ marginTop: 40 }}>Price Chart</h2>
-      <div ref={chartContainerRef} />
+      <div
+        ref={chartRef}
+        style={{ width: 600, height: 300 }}
+      />
 
-      {/* Recent Trades */}
+      {/* Trades */}
       <h2 style={{ marginTop: 40 }}>Recent Trades</h2>
-      <table style={{ width: "100%", borderCollapse: "collapse" }}>
-        <thead>
-          <tr>
-            <th style={th}>Asset</th>
-            <th style={th}>Position</th>
-            <th style={th}>P&L</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td style={td}>AAPL</td>
-            <td style={td}>Long</td>
-            <td style={{ ...td, color: "green" }}>+120</td>
-          </tr>
-          <tr>
-            <td style={td}>TSLA</td>
-            <td style={td}>Short</td>
-            <td style={{ ...td, color: "red" }}>-40</td>
-          </tr>
-          <tr>
-            <td style={td}>BTC</td>
-            <td style={td}>Long</td>
-            <td style={{ ...td, color: "green" }}>+280</td>
-          </tr>
-        </tbody>
-      </table>
+      <ul>
+        <li>AAPL +120</li>
+        <li>TSLA -40</li>
+        <li>BTC +280</li>
+      </ul>
     </div>
   );
 }
-
-const th = {
-  textAlign: "left",
-  padding: "10px",
-  borderBottom: "2px solid #ddd",
-};
-
-const td = {
-  padding: "10px",
-  borderBottom: "1px solid #eee",
-};
