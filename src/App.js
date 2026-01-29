@@ -12,8 +12,8 @@ export default function App() {
     if (!isProUser) return;
 
     const chart = createChart(chartRef.current, {
-      width: 600,
-      height: 300,
+      width: 700,
+      height: 350,
       layout: {
         background: { color: "#ffffff" },
         textColor: "#000",
@@ -22,20 +22,28 @@ export default function App() {
         vertLines: { color: "#eee" },
         horzLines: { color: "#eee" },
       },
+      timeScale: {
+        timeVisible: true,
+        secondsVisible: false,
+      },
     });
 
-    const lineSeries = chart.addLineSeries({
-      color: "#0070f3",
-      lineWidth: 2,
+    const candleSeries = chart.addCandlestickSeries({
+      upColor: "#26a69a",
+      downColor: "#ef5350",
+      borderUpColor: "#26a69a",
+      borderDownColor: "#ef5350",
+      wickUpColor: "#26a69a",
+      wickDownColor: "#ef5350",
     });
 
-    // Demo price data (safe + stable)
-    lineSeries.setData([
-      { time: "2024-01-01", value: 150 },
-      { time: "2024-01-02", value: 158 },
-      { time: "2024-01-03", value: 154 },
-      { time: "2024-01-04", value: 165 },
-      { time: "2024-01-05", value: 172 },
+    // Stable demo OHLC data
+    candleSeries.setData([
+      { time: "2024-01-01", open: 150, high: 160, low: 148, close: 155 },
+      { time: "2024-01-02", open: 155, high: 162, low: 152, close: 158 },
+      { time: "2024-01-03", open: 158, high: 159, low: 150, close: 152 },
+      { time: "2024-01-04", open: 152, high: 168, low: 151, close: 165 },
+      { time: "2024-01-05", open: 165, high: 175, low: 162, close: 172 },
     ]);
 
     return () => chart.remove();
@@ -48,7 +56,7 @@ export default function App() {
       {!isProUser ? (
         <>
           <p>This dashboard is locked.</p>
-          <p>Upgrade to Pro to see charts and stats.</p>
+          <p>Upgrade to Pro to unlock charts.</p>
 
           <a
             href="https://buy.stripe.com/4gM9AM0iy5Q91PldkE2Ji01"
@@ -78,7 +86,7 @@ export default function App() {
           <p>Win Rate: 67%</p>
           <p>Total P&amp;L: $360</p>
 
-          <h2 style={{ marginTop: 30 }}>Price Chart</h2>
+          <h2 style={{ marginTop: 30 }}>Candlestick Chart</h2>
           <div ref={chartRef} />
 
           <button
