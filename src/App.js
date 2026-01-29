@@ -4,50 +4,71 @@ import { createChart } from "lightweight-charts";
 export default function App() {
   const [isProUser, setIsProUser] = useState(false);
   const [asset, setAsset] = useState("AAPL");
+  const [data, setData] = useState([]);
 
   const chartRef = useRef(null);
 
-  const tradeData = {
-    AAPL: [
-      { time: "2024-01-01", open: 100, high: 110, low: 95, close: 105 },
-      { time: "2024-01-02", open: 105, high: 115, low: 100, close: 112 },
-      { time: "2024-01-03", open: 112, high: 118, low: 108, close: 110 },
-    ],
-    TSLA: [
-      { time: "2024-01-01", open: 220, high: 240, low: 210, close: 235 },
-      { time: "2024-01-02", open: 235, high: 245, low: 225, close: 230 },
-      { time: "2024-01-03", open: 230, high: 250, low: 228, close: 245 },
-    ],
-    BTC: [
-      { time: "2024-01-01", open: 42000, high: 44000, low: 41000, close: 43500 },
-      { time: "2024-01-02", open: 43500, high: 45000, low: 43000, close: 44500 },
-      { time: "2024-01-03", open: 44500, high: 47000, low: 44000, close: 46500 },
-    ],
-  };
-
-  const trades = [
-    { asset: "AAPL", type: "Long", pnl: 120 },
-    { asset: "TSLA", type: "Short", pnl: -40 },
-    { asset: "BTC", type: "Long", pnl: 280 },
-  ];
-
-  const filteredTrades = trades.filter(t => t.asset === asset);
-
+  // 🔹 Fetch REAL data
   useEffect(() => {
     if (!isProUser) return;
+
+    async function fetchData() {
+      if (asset === "BTC") {
+        // CoinGecko (crypto)
+        const res = await fetch(
+          "https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=7"
+        );
+        const json = await res.json();
+
+        const formatted = json.prices.map(p => ({
+          time: Math.floor(p[0] / 1000),
+          value: p[1],
+        }));
+
+        setData(formatted);
+      } else {
+        // Yahoo Finance via proxy (stocks)
+        const symbol = asset;
+        const res = await fetch(
+          `https://corsproxy.io/?https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?range=7d&interval=1d`
+        );
+        const json = await res.json();
+
+        const timestamps = json.chart.result[0].timestamp;
+        const prices = json.chart.result[0].indicators.quote[0].close;
+
+        const formatted = timestamps.map((t, i) => ({
+          time: t,
+          value: prices[i],
+        }));
+
+        setData(formatted);
+      }
+    }
+
+    fetchData();
+  }, [asset, isProUser]);
+
+  // 🔹 Render chart
+  useEffect(() => {
+    if (!isProUser || data.length === 0) return;
 
     const chart = createChart(chartRef.current, {
       width: chartRef.current.clientWidth,
       height: 300,
-      layout: { background: { color: "#fff" }, textColor: "#333" },
+      layout: { background: { color: "#fff" }, textColor: "#000" },
       grid: { vertLines: { color: "#eee" }, horzLines: { color: "#eee" } },
     });
 
-    const series = chart.addCandlestickSeries();
-    series.setData(tradeData[asset]);
+    const series =
+      asset === "BTC"
+        ? chart.addLineSeries({ color: "#f7931a" })
+        : chart.addLineSeries({ color: "#0070f3" });
+
+    series.setData(data);
 
     return () => chart.remove();
-  }, [asset, isProUser]);
+  }, [data, isProUser]);
 
   return (
     <div style={{ padding: 40, fontFamily: "Arial" }}>
@@ -56,7 +77,7 @@ export default function App() {
       {!isProUser ? (
         <div style={lockBox}>
           <h2>🔒 Pro Feature</h2>
-          <p>Upgrade to unlock charts and asset switching.</p>
+          <p>Unlock real market data.</p>
 
           <a
             href="https://buy.stripe.com/4gM9AM0iy5Q91PldkE2Ji01"
@@ -91,28 +112,6 @@ export default function App() {
             ref={chartRef}
             style={{ border: "1px solid #ddd", marginBottom: 30 }}
           />
-
-          {/* Trades */}
-          <table width="100%" border="1" cellPadding="8">
-            <thead>
-              <tr>
-                <th>Asset</th>
-                <th>Type</th>
-                <th>P&L</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredTrades.map((t, i) => (
-                <tr key={i}>
-                  <td>{t.asset}</td>
-                  <td>{t.type}</td>
-                  <td style={{ color: t.pnl >= 0 ? "green" : "red" }}>
-                    {t.pnl}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
         </>
       )}
     </div>
