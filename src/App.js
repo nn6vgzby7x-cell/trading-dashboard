@@ -1,6 +1,8 @@
-import React from "react";
-import ReactDOM from "react-dom/client";
-import App from "./App";
-
-const root = ReactDOM.createRoot(document.getElementById("root"));
-root.render(<App />);
+export default function App() {
+  return (
+    <div style={{ padding: 40 }}>
+      <h1>Trading Dashboard</h1>
+      <p>React is rendering correctly.</p>
+    </div>
+  );
+}
