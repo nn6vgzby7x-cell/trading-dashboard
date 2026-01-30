@@ -1,12 +1,41 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
+import { createChart } from "lightweight-charts";
 
 export default function App() {
+  const chartRef = useRef(null);
+
+  useEffect(() => {
+    const chart = createChart(chartRef.current, {
+      width: 600,
+      height: 300,
+      layout: {
+        background: { color: "#ffffff" },
+        textColor: "#000",
+      },
+      grid: {
+        vertLines: { color: "#eee" },
+        horzLines: { color: "#eee" },
+      },
+    });
+
+    const series = chart.addLineSeries();
+    series.setData([
+      { time: "2024-01-01", value: 100 },
+      { time: "2024-01-02", value: 105 },
+      { time: "2024-01-03", value: 102 },
+      { time: "2024-01-04", value: 110 },
+      { time: "2024-01-05", value: 115 },
+    ]);
+
+    return () => chart.remove();
+  }, []);
+
   return (
     <div
       style={{
         padding: 40,
         fontFamily: "Arial, sans-serif",
-        backgroundColor: "#f5f7fa",
+        background: "#f5f7fa",
         minHeight: "100vh",
       }}
     >
@@ -18,21 +47,8 @@ export default function App() {
         <Card title="Total P&L" value="$360" />
       </div>
 
-      <div style={{ marginTop: 40 }}>
-        <button
-          style={{
-            padding: "14px 24px",
-            fontSize: 16,
-            background: "#0070f3",
-            color: "#fff",
-            border: "none",
-            borderRadius: 6,
-            cursor: "pointer",
-          }}
-        >
-          Upgrade to Pro
-        </button>
-      </div>
+      <h2 style={{ marginTop: 40 }}>Price Chart</h2>
+      <div ref={chartRef} />
     </div>
   );
 }
