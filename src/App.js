@@ -1,8 +1,46 @@
 export default function App() {
   return (
-    <div style={{ padding: 40 }}>
+    <div
+      style={{
+        padding: 40,
+        fontFamily: "Arial, sans-serif",
+        background: "#f5f7fa",
+        minHeight: "100vh",
+      }}
+    >
       <h1>Trading Dashboard</h1>
-      <p>React is working and rendering correctly.</p>
+
+      <div style={{ display: "flex", gap: 20, marginTop: 20 }}>
+        <Card title="Total Trades" value="3" />
+        <Card title="Win Rate" value="67%" />
+        <Card title="Total P&L" value="$360" positive />
+      </div>
+    </div>
+  );
+}
+
+function Card({ title, value, positive }) {
+  return (
+    <div
+      style={{
+        background: "#ffffff",
+        padding: 20,
+        borderRadius: 10,
+        minWidth: 160,
+        boxShadow: "0 4px 10px rgba(0,0,0,0.08)",
+      }}
+    >
+      <div style={{ fontSize: 14, color: "#666" }}>{title}</div>
+      <div
+        style={{
+          fontSize: 28,
+          fontWeight: "bold",
+          marginTop: 10,
+          color: positive ? "green" : "#000",
+        }}
+      >
+        {value}
+      </div>
     </div>
   );
 }
