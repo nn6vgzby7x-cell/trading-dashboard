@@ -1,211 +1,118 @@
 import { useEffect, useRef, useState } from "react";
 import { createChart } from "lightweight-charts";
 
-/* ------------------ DATA ------------------ */
-
-const ASSETS = {
-  BTC: "bitcoin",
-  ETH: "ethereum",
-};
-
-const TRADES = {
-  BTC: [
-    { asset: "BTC", type: "Long", entry: 42000, exit: 43200 },
-    { asset: "BTC", type: "Short", entry: 45000, exit: 44000 },
-  ],
-  ETH: [
-    { asset: "ETH", type: "Long", entry: 2200, exit: 2350 },
-  ],
-};
-
-/* ------------------ APP ------------------ */
-
 export default function App() {
+  const [isPro, setIsPro] = useState(
+    localStorage.getItem("isProUser") === "true"
+  );
+
   const chartContainerRef = useRef(null);
-  const chartRef = useRef(null);
-  const seriesRef = useRef(null);
 
-  const [asset, setAsset] = useState("BTC");
-  const [price, setPrice] = useState(null);
-
-  /* Chart init */
+  /* Chart */
   useEffect(() => {
-    chartRef.current = createChart(chartContainerRef.current, {
+    if (!isPro) return;
+
+    const chart = createChart(chartContainerRef.current, {
       width: 720,
       height: 420,
       layout: { background: { color: "#fff" }, textColor: "#000" },
-      grid: {
-        vertLines: { color: "#eee" },
-        horzLines: { color: "#eee" },
-      },
     });
 
-    seriesRef.current = chartRef.current.addLineSeries({
-      color: "#2563eb",
-      lineWidth: 2,
-    });
+    const series = chart.addLineSeries({ color: "#2563eb" });
 
-    return () => chartRef.current.remove();
-  }, []);
+    series.setData([
+      { time: "2024-01-01", value: 42000 },
+      { time: "2024-01-02", value: 43200 },
+      { time: "2024-01-03", value: 44000 },
+    ]);
 
-  /* Price feed */
-  useEffect(() => {
-    if (!seriesRef.current) return;
-    seriesRef.current.setData([]);
+    return () => chart.remove();
+  }, [isPro]);
 
-    async function fetchPrice() {
-      const id = ASSETS[asset];
-      const res = await fetch(
-        `https://api.coingecko.com/api/v3/simple/price?ids=${id}&vs_currencies=usd`
-      );
-      const data = await res.json();
-      const value = data[id].usd;
+  /* LOCKED VIEW */
+  if (!isPro) {
+    return (
+      <div style={locked}>
+        <h1>Trading Dashboard</h1>
+        <p>This dashboard is locked.</p>
+        <p>Upgrade to Pro to unlock charts.</p>
 
-      setPrice(value);
+        <a
+          href="https://buy.stripe.com/4gM9AM0iy5Q91PldkE2Ji01"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <button style={btnPrimary}>Upgrade to Pro</button>
+        </a>
 
-      seriesRef.current.update({
-        time: Math.floor(Date.now() / 1000),
-        value,
-      });
-    }
+        {/* DEV ONLY */}
+        <button
+          style={btnDev}
+          onClick={() => {
+            localStorage.setItem("isProUser", "true");
+            setIsPro(true);
+          }}
+        >
+          (Dev) Mark as Paid
+        </button>
+      </div>
+    );
+  }
 
-    fetchPrice();
-    const interval = setInterval(fetchPrice, 10000);
-    return () => clearInterval(interval);
-  }, [asset]);
-
-  /* P&L */
-  const trades = TRADES[asset];
-  const totalPnL = trades.reduce((sum, t) => {
-    const pnl =
-      t.type === "Long"
-        ? t.exit - t.entry
-        : t.entry - t.exit;
-    return sum + pnl;
-  }, 0);
-
+  /* PRO VIEW */
   return (
-    <div style={{ padding: 40, fontFamily: "Arial, sans-serif" }}>
+    <div style={{ padding: 40 }}>
       <h1>Trading Dashboard</h1>
+      <p>Total Trades: 3</p>
+      <p>Win Rate: 67%</p>
+      <p>Total P&L: $360</p>
 
-      {/* STATS */}
-      <div style={{ display: "flex", gap: 20, marginBottom: 30 }}>
-        <Stat title="Asset" value={asset} />
-        <Stat title="Price" value={price ? `$${price}` : "Loading…"} />
-        <Stat
-          title="Total P&L"
-          value={`$${totalPnL}`}
-          positive={totalPnL >= 0}
-        />
-      </div>
-
-      {/* ASSET SWITCH */}
-      <div style={{ marginBottom: 20 }}>
-        <button onClick={() => setAsset("BTC")} style={btn(asset === "BTC")}>
-          BTC
-        </button>
-        <button onClick={() => setAsset("ETH")} style={btn(asset === "ETH")}>
-          ETH
-        </button>
-      </div>
-
-      {/* CHART */}
       <div ref={chartContainerRef} />
 
-      {/* TRADES */}
-      <h2 style={{ marginTop: 40 }}>Trade History</h2>
-      <table style={table}>
-        <thead>
-          <tr>
-            <th style={th}>Asset</th>
-            <th style={th}>Type</th>
-            <th style={th}>Entry</th>
-            <th style={th}>Exit</th>
-            <th style={th}>P&L</th>
-          </tr>
-        </thead>
-        <tbody>
-          {trades.map((t, i) => {
-            const pnl =
-              t.type === "Long"
-                ? t.exit - t.entry
-                : t.entry - t.exit;
-
-            return (
-              <tr key={i}>
-                <td style={td}>{t.asset}</td>
-                <td style={td}>{t.type}</td>
-                <td style={td}>${t.entry}</td>
-                <td style={td}>${t.exit}</td>
-                <td
-                  style={{
-                    ...td,
-                    color: pnl >= 0 ? "green" : "red",
-                  }}
-                >
-                  ${pnl}
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-    </div>
-  );
-}
-
-/* ------------------ UI ------------------ */
-
-function Stat({ title, value, positive }) {
-  return (
-    <div style={card}>
-      <div style={{ fontSize: 14, color: "#666" }}>{title}</div>
-      <div
-        style={{
-          marginTop: 10,
-          fontSize: 24,
-          fontWeight: "bold",
-          color: positive ? "green" : "#000",
+      <button
+        style={btnLogout}
+        onClick={() => {
+          localStorage.removeItem("isProUser");
+          setIsPro(false);
         }}
       >
-        {value}
-      </div>
+        Log out (Dev)
+      </button>
     </div>
   );
 }
 
-const btn = (active) => ({
-  marginRight: 10,
-  padding: "10px 16px",
-  fontSize: 14,
-  borderRadius: 6,
+/* STYLES */
+
+const locked = {
+  padding: 40,
+  textAlign: "center",
+  fontFamily: "Arial, sans-serif",
+};
+
+const btnPrimary = {
+  padding: "14px 24px",
+  fontSize: 16,
+  background: "#2563eb",
+  color: "#fff",
   border: "none",
+  borderRadius: 6,
   cursor: "pointer",
-  background: active ? "#2563eb" : "#e5e7eb",
-  color: active ? "#fff" : "#000",
-});
-
-const card = {
-  background: "#fff",
-  padding: 20,
-  minWidth: 180,
-  borderRadius: 8,
-  boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
+  marginTop: 20,
 };
 
-const table = {
-  width: "100%",
-  borderCollapse: "collapse",
-  background: "#fff",
+const btnDev = {
+  marginTop: 20,
+  padding: "10px 18px",
+  fontSize: 14,
+  background: "#e5e7eb",
+  border: "none",
+  borderRadius: 6,
+  cursor: "pointer",
 };
 
-const th = {
-  padding: 12,
-  borderBottom: "1px solid #ddd",
-  textAlign: "left",
-};
-
-const td = {
-  padding: 12,
-  borderBottom: "1px solid #eee",
+const btnLogout = {
+  marginTop: 20,
+  padding: "10px 18px",
+  fontSize: 14,
 };
